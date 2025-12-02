@@ -1,47 +1,68 @@
-import React, { useState, useEffect } from 'react';
-import logo from './logo.svg';
+import React from 'react';
 import './App.css';
+import './index.css';
+import Header from './components/Header';
+import StatusBar from './components/StatusBar';
+import Board from './components/Board';
+import Controls from './components/Controls';
+import { useTicTacToe } from './hooks/useTicTacToe';
+import { config } from './utils/config';
 
 // PUBLIC_INTERFACE
 function App() {
-  const [theme, setTheme] = useState('light');
+  /**
+   * App entry rendering the Tic Tac Toe game with Ocean Professional theme.
+   * Uses useTicTacToe hook for state and actions. Displays optional env badge based
+   * on logLevel or feature flags. Provides accessible UI with status region.
+   */
+  const {
+    squares,
+    xIsNext,
+    currentPlayer,
+    statusText,
+    winnerInfo,
+    isDraw,
+    handleSquareClick,
+    resetGame
+  } = useTicTacToe();
 
-  // Effect to apply theme to document element
-  useEffect(() => {
-    document.documentElement.setAttribute('data-theme', theme);
-  }, [theme]);
-
-  // PUBLIC_INTERFACE
-  const toggleTheme = () => {
-    setTheme(prevTheme => prevTheme === 'light' ? 'dark' : 'light');
-  };
+  const showEnvBadge =
+    config.logLevel === 'debug' || (config.featureFlags && config.featureFlags.showEnvBadge === true);
 
   return (
-    <div className="App">
-      <header className="App-header">
-        <button 
-          className="theme-toggle" 
-          onClick={toggleTheme}
-          aria-label={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
-        >
-          {theme === 'light' ? '🌙 Dark' : '☀️ Light'}
-        </button>
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <p>
-          Current theme: <strong>{theme}</strong>
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div className="app-root">
+      <Header
+        title="Tic Tac Toe"
+        showEnvBadge={showEnvBadge}
+        envText={(config.nodeEnv || 'development').toUpperCase()}
+      />
+
+      <main className="game-container" aria-label="Tic Tac Toe Game">
+        <StatusBar
+          text={statusText}
+          state={
+            winnerInfo?.winner
+              ? 'winner'
+              : isDraw
+              ? 'draw'
+              : 'in-progress'
+          }
+        />
+
+        <section className="board-card" aria-label="Game Board">
+          <Board
+            squares={squares}
+            onSquareClick={handleSquareClick}
+            winningLine={winnerInfo?.line || null}
+          />
+        </section>
+
+        <Controls onReset={resetGame} />
+      </main>
+
+      <footer className="footer-note" aria-label="Footer">
+        <span className="muted">Built with the Ocean Professional theme.</span>
+      </footer>
     </div>
   );
 }
