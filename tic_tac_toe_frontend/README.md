@@ -1,82 +1,113 @@
-# Lightweight React Template for KAVIA
+# Tic Tac Toe — Ocean Professional (React)
 
-This project provides a minimal React template with a clean, modern UI and minimal dependencies.
+This is a lightweight React Tic Tac Toe game with an Ocean Professional visual theme. It focuses on accessibility, simple state management, and a clean modern look using vanilla CSS.
 
-## Features
+## How to Run
 
-- **Lightweight**: No heavy UI frameworks - uses only vanilla CSS and React
-- **Modern UI**: Clean, responsive design with KAVIA brand styling
-- **Fast**: Minimal dependencies for quick loading times
-- **Simple**: Easy to understand and modify
+In this directory you can use the following commands:
 
-## Getting Started
+### Development
+- npm install
+- npm start
 
-In the project directory, you can run:
+The app runs in development mode and is available at http://localhost:3000.
 
-### `npm start`
+### Tests
+- npm test
 
-Runs the app in development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+This launches the test runner.
 
-### `npm test`
+### Production build
+- npm run build
 
-Launches the test runner in interactive watch mode.
+This produces an optimized build in the build/ folder.
 
-### `npm run build`
+## Environment Variables
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+This app reads a small set of environment variables at build time (prefixed with REACT_APP_). The following are used directly in code or part of the container’s .env set:
 
-## Customization
+- REACT_APP_NODE_ENV
+  - Purpose: Indicates the environment name for display and logic.
+  - Where used: src/utils/config.js (falls back to NODE_ENV) and shown in the header as a badge when enabled.
+  - Example: development | staging | production
 
-### Colors
+- REACT_APP_LOG_LEVEL
+  - Purpose: Controls log level and, when set to debug, enables the environment badge display.
+  - Where used: src/utils/config.js and read in App to decide showing the badge.
+  - Example: debug | info | warn | error
 
-The main brand colors are defined as CSS variables in `src/App.css`:
+- REACT_APP_FEATURE_FLAGS
+  - Purpose: Enables optional UI capabilities via flags. Supports JSON string or comma-separated format.
+  - Where used: src/utils/config.js (parsed by parseFeatureFlags) and read in App for showEnvBadge.
+  - Examples:
+    - JSON: {"showEnvBadge": true}
+    - Comma-separated: showEnvBadge,!someOtherFlag
 
-```css
-:root {
-  --kavia-orange: #E87A41;
-  --kavia-dark: #1A1A1A;
-  --text-color: #ffffff;
-  --text-secondary: rgba(255, 255, 255, 0.7);
-  --border-color: rgba(255, 255, 255, 0.1);
-}
-```
+The container’s .env may also define the following, which are not read by the current UI code but are listed for completeness of the environment:
+- REACT_APP_API_BASE
+- REACT_APP_BACKEND_URL
+- REACT_APP_FRONTEND_URL
+- REACT_APP_WS_URL
+- REACT_APP_NEXT_TELEMETRY_DISABLED
+- REACT_APP_ENABLE_SOURCE_MAPS
+- REACT_APP_PORT
+- REACT_APP_TRUST_PROXY
+- REACT_APP_HEALTHCHECK_PATH
+- REACT_APP_EXPERIMENTS_ENABLED
 
-### Components
+Note: Only REACT_APP_NODE_ENV, REACT_APP_LOG_LEVEL, and REACT_APP_FEATURE_FLAGS are actively consumed by the current code in src/utils/config.js and App.
 
-This template uses pure HTML/CSS components instead of a UI framework. You can find component styles in `src/App.css`. 
+## Ocean Professional Theme
 
-Common components include:
-- Buttons (`.btn`, `.btn-large`)
-- Container (`.container`)
-- Navigation (`.navbar`)
-- Typography (`.title`, `.subtitle`, `.description`)
+The theme is implemented with CSS variables and modern layout styles in src/App.css. It uses blue primary accents with warm amber highlights, subtle shadows, rounded corners, and smooth transitions to create a refined feel.
 
-## Learn More
+Key palette (see :root in src/App.css):
+- --primary: #2563EB
+- --secondary: #F59E0B
+- --background: #f9fafb
+- --surface: #ffffff
+- --text: #111827
+- --muted: #6b7280
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+Theme cues in the UI:
+- Header uses a soft blue-to-gray gradient and may display an environment badge.
+- Status bar changes color based on state: in-progress (primary), winner (secondary gradient), draw (muted).
+- Squares have subtle elevation, rounded corners, and color emphasis for X (primary) and O (light blue).
+- Buttons use the primary color with hover elevation and focus rings for accessibility.
 
-### Code Splitting
+## Gameplay Instructions
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+- The game alternates turns between X and O starting with X.
+- Click or press Enter/Space on any empty square to place your mark.
+- The game declares a winner when three marks align horizontally, vertically, or diagonally.
+- If all nine squares are filled with no winner, the game is a draw.
+- Use the Reset button to start a new round at any time.
 
-### Analyzing the Bundle Size
+Status and visual cues:
+- The status bar announces the next player, the winner, or a draw.
+- When a winner is detected, the winning line of squares is visually highlighted.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+## Accessibility Considerations
 
-### Making a Progressive Web App
+The UI is designed with accessibility in mind:
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+- Interactive squares are rendered as buttons with role="gridcell", keyboard handlers, and an aria-label of the form “Square row r column c”. This makes navigation and activation via keyboard straightforward.
+- Buttons expose aria-pressed to communicate whether a square has been taken.
+- The board container has role="grid" to provide a structured semantic layout to assistive technologies.
+- The game status uses role="status" with aria-live="polite" so screen readers are notified about turn changes, win conditions, and draws without being overly disruptive.
+- Focus styles are clear and rely on a custom focus ring that contrasts with the theme, aiding users who navigate by keyboard.
 
-### Advanced Configuration
+## Project Structure
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+Key files:
+- src/App.js — application composition, theme usage, and environment badge logic.
+- src/utils/config.js — environment variable parsing including feature flags.
+- src/hooks/useTicTacToe.js — encapsulates game state, moves, winner/draw logic, and reset.
+- src/components/Board.jsx — renders a 3x3 grid of square buttons.
+- src/components/Square.jsx — accessible square button with keyboard and ARIA support.
+- src/components/StatusBar.jsx — live region for game state.
+- src/App.css — Ocean Professional theme variables and component styling.
 
-### Deployment
+## Notes
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+- Environment Badge: The badge in the header is shown when either REACT_APP_LOG_LEVEL=debug or REACT_APP_FEATURE_FLAGS includes showEnvBadge=true. The text of the badge is derived from REACT_APP_NODE_ENV (or NODE_ENV) uppercased.
